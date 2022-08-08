@@ -1,0 +1,9 @@
+canvas {
+  width: 640px;
+  height: 480px;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
