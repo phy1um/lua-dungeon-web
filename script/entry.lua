@@ -1,5 +1,6 @@
 
 local DRAW = require"draw"
+local WORLD = require"world"
 local C = DOM.query("#container")
 local xx = 0
 local yy = 0
@@ -8,18 +9,7 @@ local H = 20
 
 DRAW.init("#spritesheet")
 
-local function makeMap(w, h)
-  local mm = {}
-  for i=1,w,1 do
-    for j=1,h,1 do
-      local ri = math.floor(math.random() * 5)
-      table.insert(mm, ri)
-    end
-  end
-  return mm
-end
-
-local MAP = makeMap(W, H)
+local ww = WORLD.load("map1")
 
 local function put(msg)
   local pp = DOM.create("p")
@@ -35,17 +25,7 @@ function JSPROG.draw(dt, ctx)
   ctx.clearRect(0, 0, 320, 240)
   ctx.fillStyle ="black"
   ctx.fillRect(0, 0, 320, 240)
-
-  for i=1,W,1 do
-    for j=1,H,1 do
-      local ind = (j-1)*W + (i-1)     
-      local mi = MAP[ind+1]
-      if mi > 0 then
-        DRAW.sprite(ctx, mi, (i-1)*12, (j-1)*12)
-      end
-    end
-  end
-
+  ww:draw(ctx, 0, 0, W, H)
   DRAW.sprite(ctx, 26, xx*12, yy*12)
 end
 

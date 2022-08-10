@@ -13,6 +13,9 @@
 
   await mountFile("./entry.lua");
   await mountFile("./draw.lua");
+  await mountFile("./world.lua");
+  await mountFile("./map1.lua");
+  await mountFile("./base64.lua");
 
   const lua = await factory.createEngine();
 
