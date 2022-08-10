@@ -1,15 +1,23 @@
 
 local DRAW = require"draw"
 local WORLD = require"world"
-local C = DOM.query("#container")
+local C = DOM.query("#gamelog")
 local xx = 0
 local yy = 0
 local W = 26
 local H = 20
-local cam = {x = 0, y = 0, w = W, h = H, mx = 0, my = 0}
 
+local function put(msg)
+  local pp = DOM.create("p")
+  pp.innerText = msg
+  C.appendChild(pp)
+end
+
+local cam = {x = 0, y = 0, w = W, h = H, mx = 0, my = 0}
 function cam:follow(px, py)
   -- TODO: cleanup magic numbers
+  local sx = cam.x
+  local sy = cam.y
   if (px - self.x) - self.w + 6 > 0 then self.x = self.x + 1 
   elseif px - self.x - 6 < 0 then self.x = self.x - 1 
   end
@@ -18,7 +26,10 @@ function cam:follow(px, py)
   end
   self.x = math.max(0, math.min(self.x, self.mx))
   self.y = math.max(0, math.min(self.y, self.my))
-  print("cam (" .. self.x .. ", " .. self.y .. ")")
+
+  if self.x ~= sx or self.y ~= sy then
+    put("camera move: (" .. cam.x .. ", " .. cam.y .. ")")
+  end
 end
 
 DRAW.init("#spritesheet")
@@ -26,12 +37,6 @@ DRAW.init("#spritesheet")
 local ww = WORLD.load("map1")
 cam.mx = ww.width - cam.w - 1
 cam.my = ww.height - cam.h - 1
-
-local function put(msg)
-  local pp = DOM.create("p")
-  pp.innerText = msg
-  C.appendChild(pp)
-end
 
 
 function JSPROG.update(dt)
@@ -52,6 +57,9 @@ function JSPROG.keydown(e)
   elseif e.key == "a" then xx = xx - 1
   elseif e.key == "s" then yy = yy + 1
   elseif e.key == "d" then xx = xx + 1
+  elseif e.key == "p" then JSPROG.pause = not JSPROG.pause
   end
 end
 
+put("Lua dungeon test by Tom Marks (coding.tommarks.xyz)")
+put("WASD to move around")
