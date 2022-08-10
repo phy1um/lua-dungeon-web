@@ -24,7 +24,9 @@
     "query": (q) => document.querySelector(q),
   });
 
-  const jsProg = {};
+  const jsProg = {
+    pause: false,
+  };
   lua.global.set("JSPROG", jsProg); 
 
   await lua.doString(`
@@ -45,8 +47,10 @@
     then = now;
     frameAcc += dt;
     if (frameAcc > dFPS) {
-      jsProg.update(dt);
-      jsProg.draw(dt, drawContext);
+      if (!jsProg.pause) {
+        jsProg.update(dt);
+        jsProg.draw(dt, drawContext);
+      }
       frameAcc -= dFPS;
     }
   }

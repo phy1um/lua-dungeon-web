@@ -6,10 +6,26 @@ local xx = 0
 local yy = 0
 local W = 26
 local H = 20
+local cam = {x = 0, y = 0, w = W, h = H, mx = 0, my = 0}
+
+function cam:follow(px, py)
+  -- TODO: cleanup magic numbers
+  if (px - self.x) - self.w + 6 > 0 then self.x = self.x + 1 
+  elseif px - self.x - 6 < 0 then self.x = self.x - 1 
+  end
+  if (py - self.y) - self.h + 4 > 0 then self.y = self.y + 1 
+  elseif py - self.y - 4 < 0 then self.y = self.y - 1 
+  end
+  self.x = math.max(0, math.min(self.x, self.mx))
+  self.y = math.max(0, math.min(self.y, self.my))
+  print("cam (" .. self.x .. ", " .. self.y .. ")")
+end
 
 DRAW.init("#spritesheet")
 
 local ww = WORLD.load("map1")
+cam.mx = ww.width - cam.w - 1
+cam.my = ww.height - cam.h - 1
 
 local function put(msg)
   local pp = DOM.create("p")
@@ -25,8 +41,10 @@ function JSPROG.draw(dt, ctx)
   ctx.clearRect(0, 0, 320, 240)
   ctx.fillStyle ="black"
   ctx.fillRect(0, 0, 320, 240)
-  ww:draw(ctx, 0, 0, W, H)
-  DRAW.sprite(ctx, 26, xx*12, yy*12)
+
+  ww:draw(ctx, cam.x, cam.y, W, H)
+  DRAW.sprite(ctx, 26, (xx - cam.x)*12, (yy - cam.y)*12)
+  cam:follow(xx, yy)
 end
 
 function JSPROG.keydown(e)
