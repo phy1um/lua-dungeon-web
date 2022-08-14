@@ -1,13 +1,14 @@
 body,html {
-  width:100%;
-  height:100%;
+  margin: 0;
+  padding: 0;
+  height:100vh;
   background-color:#121212;
   color: #fefefe;
 }
 
 #gamelog {
   width: 640px;
-  height: 200px;
+  height: 110px;
   overflow-y: scroll;
 }
 

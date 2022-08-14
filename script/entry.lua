@@ -10,19 +10,19 @@ local H = 20
 local function put(msg)
   local pp = DOM.create("p")
   pp.innerText = msg
-  C.appendChild(pp)
+  C.prepend(pp)
 end
 
-local cam = {x = 0, y = 0, w = W, h = H, mx = 0, my = 0}
+local cam = {x = 0, y = 0, w = W, h = H, mx = 0, my = 0, marginX = 10, marginY = 9}
 function cam:follow(px, py)
   -- TODO: cleanup magic numbers
   local sx = cam.x
   local sy = cam.y
-  if (px - self.x) - self.w + 6 > 0 then self.x = self.x + 1 
-  elseif px - self.x - 6 < 0 then self.x = self.x - 1 
+  if (px - self.x) - self.w + self.marginX > 0 then self.x = self.x + 1 
+  elseif px - self.x - self.marginX < 0 then self.x = self.x - 1 
   end
-  if (py - self.y) - self.h + 4 > 0 then self.y = self.y + 1 
-  elseif py - self.y - 4 < 0 then self.y = self.y - 1 
+  if (py - self.y) - self.h + self.marginY > 0 then self.y = self.y + 1 
+  elseif py - self.y - self.marginY < 0 then self.y = self.y - 1 
   end
   self.x = math.max(0, math.min(self.x, self.mx))
   self.y = math.max(0, math.min(self.y, self.my))
@@ -38,8 +38,13 @@ local ww = WORLD.load("map1")
 cam.mx = ww.width - cam.w - 1
 cam.my = ww.height - cam.h - 1
 
-
+local acc = 0
 function JSPROG.update(dt)
+  acc = acc + dt
+  if acc > 10 then
+    put("ping")
+    acc = 0
+  end
 end
 
 function JSPROG.draw(dt, ctx)
@@ -53,12 +58,20 @@ function JSPROG.draw(dt, ctx)
 end
 
 function JSPROG.keydown(e)
-  if e.key == "w" then yy = yy - 1
-  elseif e.key == "a" then xx = xx - 1
-  elseif e.key == "s" then yy = yy + 1
-  elseif e.key == "d" then xx = xx + 1
+  local dx = xx
+  local dy = yy
+  if e.key == "w" then dy = yy - 1
+  elseif e.key == "a" then dx = xx - 1
+  elseif e.key == "s" then dy = yy + 1
+  elseif e.key == "d" then dx = xx + 1
   elseif e.key == "p" then JSPROG.pause = not JSPROG.pause
   end
+
+  if ww:test(dx, dy) == false then
+    xx = dx
+    yy = dy
+  end
+
 end
 
 put("Lua dungeon test by Tom Marks (coding.tommarks.xyz)")
