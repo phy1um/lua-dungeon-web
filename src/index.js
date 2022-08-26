@@ -11,12 +11,18 @@
       .catch(err => console.error(err));
   }
 
+  function mountFiles(mounts, next) {
+    const promises = [];
+    for(let path of mounts) {
+      const pr = mountFile(`./${path}.lua`);
+      promises.push(pr);
+    }
+    Promise.all(promises)
+      .then(next)
+      .catch(console.error);
+  }
+
   await mountFile("./entry.lua");
-  await mountFile("./draw.lua");
-  await mountFile("./world.lua");
-  await mountFile("./map1.lua");
-  await mountFile("./base64.lua");
-  await mountFile("./camera.lua");
 
   const lua = await factory.createEngine();
 
@@ -27,8 +33,13 @@
 
   const jsProg = {
     pause: false,
+    mountFiles: mountFiles,
+    update: () => {},
+    draw: () => {},
   };
+
   lua.global.set("JSPROG", jsProg); 
+  lua.global.set("prettyPrint", console.dir);
 
   await lua.doString(`
     require"entry"
