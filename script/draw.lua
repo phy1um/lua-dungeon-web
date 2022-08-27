@@ -1,6 +1,5 @@
 
 local dd = {
-  _spritesheet = nil,
   innerWidth = 12,
   innerHeight = 12,
   padX = 1,
@@ -9,7 +8,6 @@ local dd = {
 }
 
 function dd.init(element)
-  print("re-init draw")
   dd._spritesheet = DOM.query(element)
   if dd._spritesheet == nil then
     error("failed to load spritesheet " .. element)
@@ -21,7 +19,6 @@ function dd.sprite(ctx, ind, x, y)
   local iy = math.floor(ind / dd.tilesPerRow)
   local pixelX = (dd.innerWidth + dd.padX) * ix
   local pixelY = (dd.innerHeight + dd.padY) * iy
-  prettyPrint(dd._spritesheet)
   ctx.drawImage(
     dd._spritesheet,
     -- source

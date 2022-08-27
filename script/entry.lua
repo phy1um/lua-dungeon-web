@@ -16,6 +16,16 @@ MOUNTS = {
   "state",
 }
 
+
+local gameLogContainer = DOM.query("#gamelog")
+function gameLog(msg)
+  local pp = DOM.create("p")
+  pp.innerText = msg
+  gameLogContainer.prepend(pp)
+end
+
+local put = gameLog
+
 function reloadAll()
   JSPROG.pause = true
   JSPROG.mountFiles(MOUNTS, function()
@@ -23,14 +33,16 @@ function reloadAll()
       reload(m)
     end
     local dd = require"draw"
-    prettyPrint(dd)
-    --JSPROG.pause = false
+    dd.init("#spritesheet")
+    JSPROG.pause = false
   end)
 end
 
 JSPROG.mountFiles({"hot"}, function()
   require, reload = require"hot".init()
   JSPROG.mountFiles(MOUNTS, function()
+    put("Lua dungeon test by Tom Marks (coding.tommarks.xyz)")
+    put("WASD to move around")
     local G = require"game"
     local state = G.new("map1")
     state:bind()

@@ -7,6 +7,7 @@ local game = STATE.extend{
   world = nil,
   px = 0,
   py = 0,
+  pauseNext = false,
 }
 
 function game.new(m)
@@ -22,6 +23,13 @@ function game:init(m)
   self.cam = CAMERA.new(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
   self.cam:limit(self.world.width, self.world.height)
   self.cam:margin(10, 9)
+end
+
+function game:update()
+  if self.pauseNext == true then
+    JSPROG.pause = true
+    self.pauseNext = false
+  end
 end
 
 function game:draw(dt, ctx)
@@ -42,6 +50,9 @@ function game:keydown(k)
   elseif k == "s" then dy = 1
   elseif k == "d" then dx = 1
   elseif k == "p" then JSPROG.pause = not JSPROG.pause
+  elseif k == "." then 
+    JSPROG.pause = false
+    self.pauseNext = true
   elseif k == "0" then 
     reloadAll()
   end

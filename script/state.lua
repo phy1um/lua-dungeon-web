@@ -14,7 +14,6 @@ end
 function baseState.extend(o)
   for k, v in pairs(baseState) do
     if o[k] == nil then 
-      print("copy " .. k)
       o[k] = baseState[k] 
     end
   end

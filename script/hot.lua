@@ -18,7 +18,7 @@ return { init = function()
   end
 
   function H.reload(p)
-    print("## reloading " .. p)
+    -- print("## reloading " .. p)
     local m = H.cache[p]
     if m == nil then return end
     package.loaded[p] = nil
@@ -34,7 +34,7 @@ return { init = function()
     for k, v in pairs(newmod) do
       -- do not copy keys that start with some character
       if string.byte(k, 1) ~= H.ignoreChar then
-        print("patching module " .. p .. ": " .. k)
+        -- print("patching module " .. p .. ": " .. k)
         m[k] = v
       end
     end
