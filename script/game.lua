@@ -55,6 +55,10 @@ function game:keydown(k)
     self.pauseNext = true
   elseif k == "0" then 
     reloadAll()
+  elseif k == "z" then
+    local dbg = require"dbg".new{}
+    dbg.jsScope.state = self
+    JSPROG.debug(dbg)
   end
 
   if self.world:test(self.px + dx, self.py + dy) == false then

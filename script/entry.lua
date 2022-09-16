@@ -38,7 +38,7 @@ function reloadAll()
   end)
 end
 
-JSPROG.mountFiles({"hot"}, function()
+JSPROG.mountFiles({"hot", "dbg"}, function()
   require, reload = require"hot".init()
   JSPROG.mountFiles(MOUNTS, function()
     put("Lua dungeon test by Tom Marks (coding.tommarks.xyz)")
