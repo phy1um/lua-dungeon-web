@@ -2,6 +2,7 @@ local DRAW = require"draw"
 local WORLD = require"world"
 local CAMERA = require"camera"
 local STATE = require"state"
+local dbg = require"dbg"
 
 local game = STATE.extend{
   world = nil,
@@ -50,15 +51,12 @@ function game:keydown(k)
   elseif k == "s" then dy = 1
   elseif k == "d" then dx = 1
   elseif k == "p" then JSPROG.pause = not JSPROG.pause
+  elseif k == "z" then dbg.b()
   elseif k == "." then 
     JSPROG.pause = false
     self.pauseNext = true
   elseif k == "0" then 
     reloadAll()
-  elseif k == "z" then
-    local dbg = require"dbg".new{}
-    dbg.jsScope.state = self
-    JSPROG.debug(dbg)
   end
 
   if self.world:test(self.px + dx, self.py + dy) == false then

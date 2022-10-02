@@ -3,6 +3,7 @@
   const { LuaFactory } = require('wasmoon');
 
   const factory = new LuaFactory();
+  const module = await factory.getLuaModule();
 
   async function mountFile(path) {
     return fetch(path)
@@ -35,31 +36,30 @@
 
   const jsProg = {
     pause: false,
-    isDebug: false,
     mountFiles: mountFiles,
     update: () => {},
     draw: () => {},
     keydown: () => {},
-    debug: (dbg) => {
-      if (jsProg.isDebug) {
-        return;
-      }
-
+    _wupdate: () => {},
+    _wdraw: () => {},
+    _wkeydown: () => {},
+    isDebug: false,
+    debugOn: (ctx) => {
       jsProg.isDebug = true;    
       console.log(">>>> DEBUGGER ACTIVATED <<<<");
       console.log(" --- binding dbg functions ---");
       console.log(" (*) dbgLocals (*) dbgEval (*) dbgQuit (*) ");
-      debugOn(dbg, () => {
-        console.log(">>>> DEBUGGER DISABLED <<<<");
+      console.dir(ctx.inf);
+      console.dir(ctx.trace);
+      console.dir(ctx.locals);
+      debugOn(ctx, () => {
         jsProg.isDebug = false;
       });
     },
-    breakpoints: [],
   };
 
   lua.global.set("JSPROG", jsProg); 
   lua.global.set("prettyPrint", console.dir);
-  await lua.doString(`debug.sethook(JSPROG.onBreak, "l")`);
 
   await lua.doString(`
     require"entry"
@@ -82,17 +82,17 @@
     then = now;
     frameAcc += dt;
     if (frameAcc > dFPS) {
+      frameAcc = 0;
       if (!jsProg.pause) {
-        jsProg.update(dt);
-        jsProg.draw(dt, drawContext);
+        jsProg._wupdate(dt);
+        jsProg._wdraw(dt, drawContext);
       }
-      frameAcc -= dFPS;
     }
   }
 
   update(then);
 
-  window.onkeydown = (e) => jsProg.keydown(e);
+  window.onkeydown = (e) => jsProg._wkeydown(e);
   window.breakpoint = (file, line) => {
     jsProg.breakpoints.push({file, line});
   };
@@ -109,16 +109,11 @@
       done();
     }
     window.dbgLocals = (i) => {
-      const locals = d.locals(i);
-      console.dir(locals);
+      console.dir(d.locals);
     }
     window.dbgEval = (ll) => {
-      const res = lua.doStringSync(ll);
+      const res = d.eval(ll);
       console.dir(res);
-    }
-    window.dbgFrame = () => {
-      jsProg.update(dFPS);
-      jsProg.draw(dFPS, drawContext);
     }
     window.D = d;
     for (let k in d.jsScope) {
