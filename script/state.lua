@@ -5,21 +5,18 @@ function baseState:update() end
 function baseState:draw() end
 function baseState:keydown() end
 function baseState:runEvent(ev, ...) 
-  print("STATE RUN EVENT: " .. ev .. ":: " .. tostring(...))
-  local fn = self[ev] 
+  print("go go " .. ev)
+  local fn = function() print("?") end
+  if ev == "draw" then
+    fn = draw
+  else
+    fn = update
+  end
   if fn == nil then
-    error("no such state event " .. ev)
+    error("even func was nil?")
   end
   local co = coroutine.create(fn)
-  if co == nil or type(co) ~= "thread" then
-    error("invalid coro " .. tostring(co))
-  end
-  print("CORO: START")
-  local st, err = coroutine.resume(co, self, ...)
-  print("CORO: END")
-  if st == false then 
-    error(err)
-  end 
+  coroutine.resume(co, self, ...)
 end
 
 function baseState.extend(o)

@@ -16,6 +16,6 @@
     "webpack-dev-server": "^4.9.3"
   },
   "dependencies": {
-    "wasmoon": "^1.14.0"
+    "wasmoon": "file:../../repos/wasmoon"
   }
 }

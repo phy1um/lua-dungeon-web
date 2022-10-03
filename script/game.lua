@@ -4,6 +4,9 @@ local CAMERA = require"camera"
 local STATE = require"state"
 local dbg = require"dbg"
 
+function update() end
+function draw() end
+
 local game = STATE.extend{
   world = nil,
   px = 0,
@@ -24,6 +27,8 @@ function game:init(m)
   self.cam = CAMERA.new(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
   self.cam:limit(self.world.width, self.world.height)
   self.cam:margin(10, 9)
+  update = function() self.update() end
+  draw = function(dt, ctx) self.draw(dt, ctx) end
 end
 
 function game:update()
