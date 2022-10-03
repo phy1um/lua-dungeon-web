@@ -28,12 +28,13 @@ end
 
 function game:update()
   if self.pauseNext == true then
-    JSPROG.pause = true
+    PROG.pause()
     self.pauseNext = false
   end
 end
 
 function game:draw(dt, ctx)
+  print("go go draw")
   ctx.clearRect(0, 0, 320, 240)
   ctx.fillStyle = "black"
   ctx.fillRect(0, 0, 320, 240)
@@ -41,6 +42,7 @@ function game:draw(dt, ctx)
   self.cam:drawWorld(ctx, self.world)
   self.cam:drawSprite(ctx, 26, self.px, self.py)
   self.cam:follow(self.px, self.py)
+  print("draw out")
 end
 
 function game:keydown(k)
@@ -50,10 +52,10 @@ function game:keydown(k)
   elseif k == "a" then dx = -1
   elseif k == "s" then dy = 1
   elseif k == "d" then dx = 1
-  elseif k == "p" then JSPROG.pause = not JSPROG.pause
+  elseif k == "p" then PROG.pause()
   elseif k == "z" then dbg.b()
   elseif k == "." then 
-    JSPROG.pause = false
+    PROG.unpause()
     self.pauseNext = true
   elseif k == "0" then 
     reloadAll()

@@ -32,34 +32,65 @@
     "query": (q) => document.querySelector(q),
   });
 
-  
+  lua.global.set("FS", {
+    "mountFiles": mountFiles,
+  });
 
-  const jsProg = {
+
+  const luaProgramState = {
     pause: false,
-    mountFiles: mountFiles,
-    update: () => {},
-    draw: () => {},
-    keydown: () => {},
-    _wupdate: () => {},
-    _wdraw: () => {},
-    _wkeydown: () => {},
-    isDebug: false,
-    debugOn: (ctx) => {
-      jsProg.isDebug = true;    
-      console.log(">>>> DEBUGGER ACTIVATED <<<<");
-      console.log(" --- binding dbg functions ---");
-      console.log(" (*) dbgLocals (*) dbgEval (*) dbgQuit (*) ");
-      console.dir(ctx.inf);
-      console.dir(ctx.trace);
-      console.dir(ctx.locals);
-      debugOn(ctx, () => {
-        jsProg.isDebug = false;
-      });
-    },
+    debug: false,
+    luaStateRef: null,
   };
 
-  lua.global.set("JSPROG", jsProg); 
+  let luaStateEvent = () => {};
+
+  function luaProgramDebugEnable(ctx) {
+    luaProgramState.debug = true;
+    console.log(">>>> DEBUGGER ACTIVATED <<<<");
+    console.log(" --- binding dbg functions ---");
+    console.log(" (*) dbgLocals (*) dbgEval (*) dbgQuit (*) ");
+    console.dir(ctx.inf);
+    console.dir(ctx.trace);
+    console.dir(ctx.locals);
+
+    window.dbgQuit = () => {
+      window.D = undefined;
+      window.dbgQuit = undefined;
+      window.dbgLocals = undefined;
+      window.dbgEval = undefined;
+      for (let k in d.jsScope) {
+        window[k] = undefined;
+      }
+      luaProgramState.debug = false;
+    }
+    window.dbgLocals = (i) => {
+      console.dir(ctx.locals);
+    }
+    window.dbgEval = (ll) => {
+      const res = ctx.eval(ll);
+      console.dir(res);
+    }
+    window.D = d;
+    for (let k in ctx.jsScope) {
+      window[k] = ctx.jsScope[k];
+    }
+  }
+
+  function bindLuaState(st, evfn) {
+    console.log("lua state bound");
+    luaProgramState.luaStateRef = st;
+    luaStateEvent = evfn;
+  }
+
   lua.global.set("prettyPrint", console.dir);
+
+  lua.global.set("PROG", {
+    bind: bindLuaState,
+    debug: luaProgramDebugEnable,
+    pause: () => { luaProgramState.pause = true; },
+    unpause: () => { luaProgramState.pause = false; },
+  });
 
   await lua.doString(`
     require"entry"
@@ -69,13 +100,13 @@
   const drawContext = canvas.getContext("2d");
 
   let then = performance.now();
-  const FPS = 30;
+  const FPS = 5;
   const dFPS = 1 / FPS;
   let frameAcc = 0;
 
   function update(now) {
     window.requestAnimationFrame(update);
-    if (jsProg.isDebug) {
+    if (luaProgramState.debug || luaProgramState.pause) {
       return;
     }
     let dt = (now - then) / 1000;
@@ -83,42 +114,18 @@
     frameAcc += dt;
     if (frameAcc > dFPS) {
       frameAcc = 0;
-      if (!jsProg.pause) {
-        jsProg._wupdate(dt);
-        jsProg._wdraw(dt, drawContext);
-      }
+      luaStateEvent("update", dt)
+      luaStateEvent("draw", dt, drawContext)
     }
   }
 
   update(then);
 
-  window.onkeydown = (e) => jsProg._wkeydown(e);
-  window.breakpoint = (file, line) => {
-    jsProg.breakpoints.push({file, line});
-  };
-
-  function debugOn(d, done) {
-    window.dbgQuit = () => {
-      window.D = undefined;
-      window.dbgQuit = undefined;
-      window.dbgLocals = undefined;
-      window.dbgEval = undefined;
-      for (let k in d.jsScope) {
-        window[k] = undefined;
-      }
-      done();
+  window.onkeydown = (e) => {
+    if (luaProgramState.debug) {
+      return;
     }
-    window.dbgLocals = (i) => {
-      console.dir(d.locals);
-    }
-    window.dbgEval = (ll) => {
-      const res = d.eval(ll);
-      console.dir(res);
-    }
-    window.D = d;
-    for (let k in d.jsScope) {
-      window[k] = d.jsScope[k];
-    }
+    luaStateEvent("keydown", e.key)
   }
 
 })();

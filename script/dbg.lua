@@ -24,7 +24,7 @@ function dbg:b()
   function ctx.eval(l)
     return load(l)
   end
-  JSPROG.debugOn(ctx)
+  PROG.debug(ctx)
   coroutine.yield()
 end
 
